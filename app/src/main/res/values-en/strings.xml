@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Wallify</string>
+    <string name="app_slogan">Live wallpapers built with HTML</string>
+    <string name="wallpaper_description">HTML5 live wallpapers</string>
+    <string name="shortcut_add">Add shortcut to Home screen</string>
+    <string name="shortcut_apply_label">Switch to “%1$s”</string>
+    <string name="shortcut_applied">Wallpaper selected: %1$s</string>
+    <string name="shortcut_not_supported">Your launcher does not support pinned shortcuts</string>
+
+    <string name="action_apply">Apply</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_close">Close</string>
+    <string name="action_ok">OK</string>
+    <string name="action_yes">Yes</string>
+    <string name="action_back">Back</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_search">Search</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_share">Share</string>
+    <string name="action_preview">Preview</string>
+    <string name="dialog_confirm_title">Confirm</string>
+
+    <string name="tab_home">Home</string>
+    <string name="tab_wallpapers">Wallpapers</string>
+    <string name="tab_repository">Catalog</string>
+    <string name="tab_settings">Settings</string>
+
+    <string name="status_title">STATUS</string>
+    <string name="status_installed">Wallpaper is live</string>
+    <string name="status_installed_desc">Wallify is running as your live wallpaper</string>
+    <string name="status_not_installed">Not set as wallpaper</string>
+    <string name="status_not_installed_desc">Pick Wallify in your system wallpaper settings</string>
+    <string name="status_paused">Paused</string>
+    <string name="status_paused_desc">Animation stopped manually</string>
+    <string name="status_active_pack">Active pack: %1$s</string>
+    <string name="status_no_pack">No pack selected</string>
+
+    <string name="btn_set_wallpaper">Set wallpaper</string>
+    <string name="btn_restart_wallpaper">Restart</string>
+    <string name="btn_pause_resume">Pause</string>
+
+    <string name="info_title">ABOUT</string>
+    <string name="app_version_title">Version</string>
+    <string name="docs_title">Documentation</string>
+    <string name="docs_summary">Wallpaper API: manifest, JS bridge, events</string>
+
+    <string name="author_title">AUTHOR</string>
+    <string name="author_name_title">Rooni</string>
+    <string name="author_name_summary">rooni.dev</string>
+    <string name="tg_channel_title">Telegram</string>
+    <string name="tg_channel_summary">\@RnPlugins</string>
+
+    <string name="wallpapers_count">PACKS (%1$d)</string>
+    <string name="no_folder_selected_title">No folder selected</string>
+    <string name="no_folder_selected_desc">Point Wallify at the folder that holds your wallpaper packs</string>
+    <string name="btn_select_folder">Choose folder</string>
+    <string name="no_wallpapers_found">Nothing here yet. Import an archive or grab one from the catalog.</string>
+    <string name="no_wallpapers_match">No matches</string>
+    <string name="search_wallpapers_hint">Name or author</string>
+
+    <string name="sort_title">Sort</string>
+    <string name="sort_recent">Recently used</string>
+    <string name="sort_newest">Newest first</string>
+    <string name="sort_oldest">Oldest first</string>
+    <string name="sort_name_asc">A to Z</string>
+    <string name="sort_name_desc">Z to A</string>
+
+    <string name="btn_active">Active</string>
+    <string name="btn_settings">Settings</string>
+    <string name="btn_export">Share archive</string>
+    <string name="btn_import_zip">Import archive</string>
+    <string name="wallpaper_by">%1$s · v%2$s</string>
+    <string name="wallpaper_folder">Folder: %1$s</string>
+    <string name="wallpaper_no_description">No description</string>
+    <string name="incompatible_reason">Needs app version %1$s, you have %2$s</string>
+    <string name="delete_wallpaper_title">Delete wallpaper?</string>
+    <string name="delete_wallpaper_text">“%1$s” will be removed from the folder. This can\'t be undone.</string>
+
+    <string name="toast_wallpaper_applied">Wallpaper applied</string>
+    <string name="toast_wallpaper_installed">Installed: %1$s</string>
+    <string name="toast_wallpaper_deleted">Wallpaper deleted</string>
+    <string name="toast_wallpaper_delete_failed">Couldn\'t delete it</string>
+    <string name="toast_wallpaper_restarted">Wallpaper restarted</string>
+    <string name="toast_export_failed">Couldn\'t build the archive</string>
+    <string name="toast_export_done">Archive created</string>
+    <string name="toast_updated_to">Updated to v%1$s</string>
+
+    <string name="loading_applying">Applying…</string>
+    <string name="loading_importing">Unpacking…</string>
+    <string name="loading_opening_settings">Opening settings…</string>
+
+    <string name="settings_general">GENERAL</string>
+    <string name="battery_optimization_title">Allow unrestricted background use</string>
+    <string name="battery_optimization_summary">Open the system prompt if your device stops the live wallpaper after Wallify is dismissed</string>
+    <string name="battery_optimization_done">Unrestricted background use allowed</string>
+    <string name="battery_optimization_done_summary">The system should not stop Wallify to save battery</string>
+    <string name="touch_title">Touch</string>
+    <string name="touch_summary">Pass taps from the home screen into the wallpaper</string>
+    <string name="auto_pause_title">Pause in battery saver</string>
+    <string name="auto_pause_summary">Stop the wallpaper completely while battery saver is on</string>
+    <string name="change_folder_title">Wallpaper folder</string>
+    <string name="change_folder_empty">Not selected</string>
+
+    <string name="settings_experimental">EXPERIMENTS</string>
+    <string name="bypass_iframe_title">Bypass iframe protection</string>
+    <string name="bypass_iframe_summary">Strip X-Frame-Options and CSP from pages embedded in an iframe. Doesn\'t affect fetch or XHR.</string>
+    <string name="simple_render_title">Simple rendering mode</string>
+    <string name="simple_render_summary">Draw frames on the CPU, like older versions did. Slower, and WebGL wallpapers show a black screen. Turn this on only if the normal mode misbehaves.</string>
+
+    <string name="settings_perf">PERFORMANCE</string>
+    <string name="fps_title">Frame rate: %1$d</string>
+    <string name="fps_max_summary">Your display tops out at %1$d Hz</string>
+    <string name="res_title">Render quality: %1$d%%</string>
+    <string name="res_summary" formatted="false">Frames are drawn at a lower resolution and stretched to the screen. 100% is sharpest, lower is lighter on the CPU.</string>
+
+    <string name="settings_dev">FOR DEVELOPERS</string>
+    <string name="debug_title">JS Bridge metadata</string>
+    <string name="debug_summary">Exactly what the engine hands to a wallpaper</string>
+    <string name="debug_section_metadata">METADATA</string>
+    <string name="debug_section_colors">MATERIAL YOU COLORS</string>
+    <string name="debug_section_json">JSON FOR WINDOW.WALLPAPERENGINE</string>
+    <string name="debug_theme">Theme</string>
+    <string name="debug_screen_state">Screen</string>
+    <string name="debug_unlocked">Unlocked</string>
+    <string name="debug_locked">Locked</string>
+    <string name="debug_device">Device</string>
+
+    <string name="wallpaper_settings_title">Wallpaper settings</string>
+    <string name="preview_title">Preview</string>
+    <string name="preview_server_error">Local server failed to start</string>
+    <string name="preview_lock">Show as on the lock screen</string>
+    <string name="preview_unlock">Show as on the home screen</string>
+
+    <string name="repo_count">CATALOG (%1$d)</string>
+    <string name="repo_notice_title">Community catalog</string>
+    <string name="repo_notice_desc">These wallpapers are uploaded by users and may reach the internet. Install only what you trust.</string>
+    <string name="repo_notice_dismiss">Don\'t show again</string>
+    <string name="repo_empty">No matches</string>
+    <string name="repo_search_hint">Name, author, or #tag</string>
+    <string name="repo_badge_landscape">✓ TABLET</string>
+    <string name="repo_support_title">SUPPORT</string>
+    <string name="repo_filter_landscape">Landscape screens</string>
+    <string name="repo_filter_themes">Light and dark themes</string>
+    <string name="repo_filter_monet">Material You colors</string>
+    <string name="repo_sort_title">Sort and filter</string>
+    <string name="repo_sort_alpha">Alphabetical</string>
+    <string name="repo_sort_downloads">Most downloaded</string>
+    <string name="repo_sort_new">Newest first</string>
+    <string name="repo_type_title">Type</string>
+    <string name="repo_type_lite">Lite — light on battery</string>
+    <string name="repo_type_full">Full — animated</string>
+    <string name="repo_badge_update">Update</string>
+    <string name="repo_badge_installed">Installed</string>
+    <string name="repo_btn_install">Install</string>
+    <string name="repo_btn_update">Update to v%1$s</string>
+    <string name="repo_installed_version">Installed v%1$s · catalog has v%2$s</string>
+    <string name="repo_version">Version %1$s</string>
+    <string name="repo_readme_title">DESCRIPTION</string>
+    <string name="repo_readme_empty">No README</string>
+    <string name="repo_chip_lite">Lite</string>
+    <string name="repo_chip_full">Full</string>
+    <string name="repo_chip_gyro">Gyroscope</string>
+    <string name="repo_chip_downloads">%1$d downloads</string>
+    <string name="repo_delete_confirm">Delete “%1$s” from this device?</string>
+    <string name="repo_btn_applied">Already applied</string>
+
+    <string name="import_filter_label">Install Wallify wallpaper</string>
+    <string name="import_reading">Reading the archive…</string>
+    <string name="import_installing">Installing “%1$s”…</string>
+    <string name="import_no_file">No file was passed</string>
+    <string name="import_failed_title">Didn\'t work</string>
+    <string name="import_bad_archive">The archive is empty or unreadable</string>
+    <string name="import_no_index">No index.html inside — this isn\'t a wallpaper pack</string>
+    <string name="import_failed">Couldn\'t unpack the archive</string>
+    <string name="import_need_folder_title">Pick a folder first</string>
+    <string name="import_need_folder_desc">Wallify keeps every pack in one folder on your device. Choose it once.</string>
+    <string name="import_author">Author: %1$s</string>
+    <string name="import_version">Version: %1$s</string>
+    <string name="import_files">Files in archive: %1$d</string>
+    <string name="import_install_and_apply">Install and apply</string>
+    <string name="import_install_only">Install only</string>
+</resources>

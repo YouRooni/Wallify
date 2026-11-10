@@ -1,0 +1,8 @@
+{
+  "name": "M3 Shapes Touch & Swipe",
+  "author": "Rooni",
+  "version": "1.1.0",
+  "description": "Фигуры Material 3 реагируют на тачи пальцем и свайпы рабочих столов.",
+  "main": "index.html",
+  "useGyroscope": false
+}

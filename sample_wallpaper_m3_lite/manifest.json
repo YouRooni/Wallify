@@ -1,0 +1,13 @@
+{
+  "name": "Material 3 Shapes (Lite)",
+  "description": "Энергоэффективные живые обои Material You. Анимация запускается на 2.5 сек при включении/разблокировке и замирает в идеальную статику!",
+  "author": "Rooni",
+  "version": "1.1.0",
+  "minAppVersion": ">=1.0.0",
+  "main": "index.html",
+  "settingsPath": "settings/index.html",
+  "useGyroscope": false,
+  "isLite": true,
+  "animationDuration": 2.5,
+  "animateOn": "both"
+}

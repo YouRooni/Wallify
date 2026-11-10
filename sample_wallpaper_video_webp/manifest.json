@@ -1,0 +1,10 @@
+{
+  "name": "Animated WebP Demo",
+  "description": "Демонстрация анимированного WebP как фона обоев. Видео <video> движком не поддерживается: Android рендерит его в отдельный Surface, который не попадает в программный кадр обоев.",
+  "author": "Rooni",
+  "version": "1.1.0",
+  "minAppVersion": ">=1.0.0",
+  "main": "index.html",
+  "useGyroscope": false,
+  "isLite": true
+}

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Animated WebP Demo</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body, html {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #141218;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        #bg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .card {
+            padding: 18px 26px;
+            border-radius: 22px;
+            background: #1D192B;
+        }
+
+        h1 { font-size: 26px; color: #D0BCFF; margin-bottom: 8px; }
+        p { font-size: 15px; opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <img id="bg" src="animation.webp" alt="">
+
+    <div class="overlay">
+        <div class="card">
+            <h1>Wallify Engine</h1>
+            <p>Анимированный WebP вместо видео</p>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        'use strict';
+
+        var bg = document.getElementById('bg');
+        var card = document.querySelector('.card');
+        var title = document.querySelector('h1');
+
+        function applyMetadata(data) {
+            if (!data || !data.accentColors) return;
+            document.body.style.background = data.accentColors.background || '#141218';
+            card.style.background = data.accentColors.surfaceContainer || '#1D192B';
+            title.style.color = data.accentColors.primary || '#D0BCFF';
+        }
+
+        window.addEventListener('wallpaperEngineReady', function (e) {
+            applyMetadata(e.detail || (window.WallpaperEngine && window.WallpaperEngine.metadata));
+        });
+        window.addEventListener('wallpaperUpdate', function (e) { applyMetadata(e.detail); });
+
+        function kick() {
+            var src = bg.getAttribute('src');
+            if (!src) return;
+            bg.setAttribute('src', '');
+            bg.setAttribute('src', src);
+        }
+
+        window.addEventListener('wallpaperResume', kick);
+        window.addEventListener('wallpaperScreenOn', kick);
+    })();
+    </script>
+</body>
+</html>

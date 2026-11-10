@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Blur Dynamics</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+    (function () {
+        'use strict';
+
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d', { alpha: false });
+
+        var MAX_DPR = 1.5;
+        var viewW = 0, viewH = 0, scale = 1;
+
+        var accent = '#6750A4';
+        var bgColor = '#141218';
+
+        var blurAmount = 16;
+        var animDurationMs = 600;
+
+        var isPaused = false;
+        var isScreenOff = false;
+        var animFrameId = null;
+
+        var lockProgress = 0;
+        var lockTarget = 0;
+
+        var layers = {
+            home: { src: '', sharp: null, blurred: null, isDefault: true },
+            lock: { src: '', sharp: null, blurred: null, isDefault: true }
+        };
+
+
+        function makeCanvas(w, h) {
+            var c = document.createElement('canvas');
+            c.width = Math.max(1, Math.round(w));
+            c.height = Math.max(1, Math.round(h));
+            return c;
+        }
+
+        function blurImage(source, sw, sh, radiusPx) {
+            var factor = Math.max(2, Math.min(16, Math.round(radiusPx / 2)));
+            var smallW = Math.max(2, Math.round(sw / factor));
+            var smallH = Math.max(2, Math.round(sh / factor));
+
+            var small = makeCanvas(smallW, smallH);
+            var sctx = small.getContext('2d');
+            sctx.imageSmoothingEnabled = true;
+            sctx.drawImage(source, 0, 0, smallW, smallH);
+
+            var mid = makeCanvas(smallW, smallH);
+            var mctx = mid.getContext('2d');
+            mctx.imageSmoothingEnabled = true;
+            mctx.drawImage(small, 0, 0, smallW, smallH);
+
+            var out = makeCanvas(sw, sh);
+            var octx = out.getContext('2d', { alpha: false });
+            octx.imageSmoothingEnabled = true;
+            octx.drawImage(mid, 0, 0, sw, sh);
+            return out;
+        }
+
+        function buildDefaultBackground(kind) {
+            var w = 720, h = 1280;
+            var c = makeCanvas(w, h);
+            var g = c.getContext('2d', { alpha: false });
+
+            var lin = g.createLinearGradient(0, 0, w, h);
+            if (kind === 'lock') {
+                lin.addColorStop(0, '#4f378b');
+                lin.addColorStop(1, '#000000');
+            } else {
+                lin.addColorStop(0, '#6750a4');
+                lin.addColorStop(1, '#21005d');
+            }
+            g.fillStyle = lin;
+            g.fillRect(0, 0, w, h);
+
+            var cx = kind === 'lock' ? w * 0.7 : w * 0.3;
+            var cy = kind === 'lock' ? h * 0.8 : h * 0.2;
+            var rad = g.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.75);
+            rad.addColorStop(0, kind === 'lock' ? 'rgba(152,64,97,0.85)' : 'rgba(125,82,96,0.85)');
+            rad.addColorStop(1, 'rgba(28,27,31,0)');
+            g.fillStyle = rad;
+            g.fillRect(0, 0, w, h);
+
+            var vig = g.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.35, w / 2, h / 2, Math.max(w, h) * 0.7);
+            vig.addColorStop(0, 'rgba(0,0,0,0)');
+            vig.addColorStop(1, 'rgba(0,0,0,0.35)');
+            g.fillStyle = vig;
+            g.fillRect(0, 0, w, h);
+
+            return c;
+        }
+
+        function applyDefault(key) {
+            var layer = layers[key];
+            layer.isDefault = true;
+            layer.src = '';
+            layer.sharp = buildDefaultBackground(key);
+            layer.blurred = blurImage(layer.sharp, layer.sharp.width, layer.sharp.height, blurAmount);
+            requestDraw();
+        }
+
+        function loadPhoto(key, url) {
+            var layer = layers[key];
+            if (layer.src === url && !layer.isDefault) return;
+
+            if (!url) { applyDefault(key); return; }
+
+            var img = new Image();
+            img.onload = function () {
+                var maxSide = 1600;
+                var iw = img.naturalWidth || img.width;
+                var ih = img.naturalHeight || img.height;
+                var k = Math.min(1, maxSide / Math.max(iw, ih));
+                var tw = Math.max(1, Math.round(iw * k));
+                var th = Math.max(1, Math.round(ih * k));
+
+                var sharp = makeCanvas(tw, th);
+                sharp.getContext('2d', { alpha: false }).drawImage(img, 0, 0, tw, th);
+
+                layer.src = url;
+                layer.isDefault = false;
+                layer.sharp = sharp;
+                layer.blurred = blurImage(sharp, tw, th, blurAmount);
+                requestDraw();
+            };
+            img.onerror = function () { applyDefault(key); };
+            img.src = url;
+        }
+
+        function rebuildBlur() {
+            ['home', 'lock'].forEach(function (key) {
+                var layer = layers[key];
+                if (layer.sharp) {
+                    layer.blurred = blurImage(layer.sharp, layer.sharp.width, layer.sharp.height, blurAmount);
+                }
+            });
+            requestDraw();
+        }
+
+
+        function resize() {
+            viewW = window.innerWidth || 1080;
+            viewH = window.innerHeight || 2400;
+            scale = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+            canvas.width = Math.round(viewW * scale);
+            canvas.height = Math.round(viewH * scale);
+            ctx.setTransform(scale, 0, 0, scale, 0, 0);
+            requestDraw();
+        }
+        window.addEventListener('resize', resize);
+
+        function drawCover(bitmap, alpha) {
+            if (!bitmap || alpha <= 0.003) return;
+            var bw = bitmap.width, bh = bitmap.height;
+            var k = Math.max(viewW / bw, viewH / bh);
+            var dw = bw * k, dh = bh * k;
+            ctx.globalAlpha = alpha;
+            ctx.drawImage(bitmap, (viewW - dw) / 2, (viewH - dh) / 2, dw, dh);
+            ctx.globalAlpha = 1;
+        }
+
+        function drawFrame() {
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, viewW, viewH);
+
+            var p = lockProgress;
+
+            if (p < 0.997) {
+                drawCover(layers.home.sharp, 1);
+            }
+            if (p > 0.003) {
+                drawCover(layers.lock.blurred || layers.lock.sharp, p);
+            }
+        }
+
+        function loop(now) {
+            if (isPaused || isScreenOff) { animFrameId = null; return; }
+
+            var dt = (now - lastTime) / 1000;
+            if (!(dt > 0)) dt = 1 / 60;
+            if (dt > 0.05) dt = 0.05;
+            lastTime = now;
+
+            var speed = 1 / Math.max(0.05, animDurationMs / 1000);
+            var k = 1 - Math.exp(-4 * speed * dt);
+            lockProgress += (lockTarget - lockProgress) * k;
+
+            drawFrame();
+
+            if (Math.abs(lockTarget - lockProgress) < 0.002) {
+                lockProgress = lockTarget;
+                drawFrame();
+                animFrameId = null;
+                return;
+            }
+            animFrameId = requestAnimationFrame(loop);
+        }
+
+        var lastTime = 0;
+
+        function startLoop() {
+            if (isPaused || isScreenOff) return;
+            if (animFrameId !== null) return;
+            lastTime = performance.now();
+            animFrameId = requestAnimationFrame(loop);
+        }
+
+        function stopLoop() {
+            if (animFrameId !== null) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+        }
+
+        function requestDraw() {
+            if (animFrameId === null) drawFrame();
+        }
+
+
+        function normalizeUrl(urlStr) {
+            if (!urlStr) return '';
+            if (/^(https?:|blob:|data:)/.test(urlStr)) return urlStr;
+            return urlStr.replace(/^\/+/, '');
+        }
+
+        function readSettings() {
+            var engine = window.WallpaperEngine;
+            if (!engine || !engine.getSetting) return;
+
+            var prevBlur = blurAmount;
+            try {
+                var b = parseFloat(engine.getSetting('blurAmount', '16'));
+                if (!isNaN(b) && b >= 0 && b <= 64) blurAmount = b;
+            } catch (e) {}
+            try {
+                var a = parseFloat(engine.getSetting('animSpeed', '0.6'));
+                if (!isNaN(a) && a > 0 && a <= 5) animDurationMs = a * 1000;
+            } catch (e) {}
+
+            var homeImg = '', lockImg = '';
+            try { homeImg = normalizeUrl(engine.getSetting('homePhoto', '')); } catch (e) {}
+            try { lockImg = normalizeUrl(engine.getSetting('lockPhoto', '')); } catch (e) {}
+
+            loadPhoto('home', homeImg);
+            loadPhoto('lock', lockImg);
+
+            if (prevBlur !== blurAmount) rebuildBlur();
+        }
+
+        function updateWallpaperState(metadata) {
+            if (metadata && metadata.accentColors) {
+                accent = metadata.accentColors.primary || accent;
+                bgColor = metadata.accentColors.background || bgColor;
+            }
+            readSettings();
+            if (metadata && typeof metadata.isUnlocked === 'boolean') {
+                lockTarget = metadata.isUnlocked ? 0 : 1;
+            }
+            startLoop();
+        }
+
+        window.addEventListener('wallpaperEngineReady', function (e) {
+            updateWallpaperState(e.detail || (window.WallpaperEngine && window.WallpaperEngine.metadata));
+        });
+        window.addEventListener('wallpaperUpdate', function (e) { updateWallpaperState(e.detail); });
+        window.addEventListener('wallpaperUnlock', function () {
+            lockTarget = 0;
+            startLoop();
+        });
+
+        window.addEventListener('wallpaperScreenOn', function () {
+            isScreenOff = false;
+            startLoop();
+        });
+
+        window.addEventListener('wallpaperScreenOff', function () {
+            isScreenOff = true;
+            lockTarget = 1;
+            lockProgress = 1;
+            stopLoop();
+            drawFrame();
+        });
+
+        window.addEventListener('wallpaperPause', function () {
+            isPaused = true;
+            stopLoop();
+        });
+
+        window.addEventListener('wallpaperResume', function () {
+            isPaused = false;
+            startLoop();
+        });
+
+        applyDefault('home');
+        applyDefault('lock');
+        resize();
+    })();
+    </script>
+</body>
+</html>

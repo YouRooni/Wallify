@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M3 Shapes Gyro Physics</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { width: 100vw; height: 100vh; background: #000; overflow: hidden; }
+        canvas { display: block; width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+    (function () {
+        'use strict';
+
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d', { alpha: false });
+
+        var MAX_DPR = 1.5;
+        var viewW = 0, viewH = 0, scale = 1;
+
+        var targetGx = 0, targetGy = 0.5;
+        var gravityX = 0, gravityY = 0.5;
+
+        var isLocked = false;
+        var isPaused = false;
+        var isScreenOff = false;
+        var animFrameId = null;
+        var idleFrames = 0;
+
+        var themeColors = { bg: '#141218', surface: '#211F26', primary: '#6750A4' };
+        var hasNativeRoundRect = typeof ctx.roundRect === 'function';
+
+        function resizeCanvas() {
+            viewW = window.innerWidth || 1080;
+            viewH = window.innerHeight || 2400;
+            scale = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+            canvas.width = Math.floor(viewW * scale);
+            canvas.height = Math.floor(viewH * scale);
+            ctx.setTransform(scale, 0, 0, scale, 0, 0);
+        }
+        window.addEventListener('resize', function () {
+            resizeCanvas();
+            for (var i = 0; i < shapes.length; i++) {
+                var s = shapes[i];
+                if (s.x > viewW - s.radius) s.x = Math.max(s.radius, viewW - s.radius);
+                if (s.y > viewH - s.radius) s.y = Math.max(s.radius, viewH - s.radius);
+            }
+            startLoop();
+        });
+
+        function makeShape(id, type, radius) {
+            return {
+                id: id, type: type, radius: radius,
+                x: Math.random() * Math.max(1, (window.innerWidth || 1080) - radius * 2) + radius,
+                y: Math.random() * Math.max(1, (window.innerHeight || 2400) - radius * 2) + radius,
+                vx: 0, vy: 0
+            };
+        }
+
+        var shapes = [
+            makeShape(1, 'circle', 65),
+            makeShape(2, 'squircle', 60),
+            makeShape(3, 'circle', 55),
+            makeShape(4, 'squircle', 70)
+        ];
+
+        function roundRectPath(x, y, w, h, r) {
+            if (hasNativeRoundRect) { ctx.roundRect(x, y, w, h, r); return; }
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        function step(dt) {
+            var f = dt * 60;
+
+            var lp = 1 - Math.exp(-8 * dt);
+            gravityX += (targetGx - gravityX) * lp;
+            gravityY += (targetGy - gravityY) * lp;
+
+            var motion = 0;
+            for (var i = 0; i < shapes.length; i++) {
+                var s = shapes[i];
+                s.vx += gravityX * 0.15 * f;
+                s.vy += gravityY * 0.15 * f;
+
+                var damp = Math.pow(0.96, f);
+                s.vx *= damp;
+                s.vy *= damp;
+
+                s.x += s.vx * f;
+                s.y += s.vy * f;
+
+                if (s.x - s.radius < 0) { s.x = s.radius; s.vx = Math.abs(s.vx) * 0.7; }
+                if (s.x + s.radius > viewW) { s.x = viewW - s.radius; s.vx = -Math.abs(s.vx) * 0.7; }
+                if (s.y - s.radius < 0) { s.y = s.radius; s.vy = Math.abs(s.vy) * 0.7; }
+                if (s.y + s.radius > viewH) { s.y = viewH - s.radius; s.vy = -Math.abs(s.vy) * 0.7; }
+
+                motion += Math.abs(s.vx) + Math.abs(s.vy);
+            }
+            return motion;
+        }
+
+        function drawFrame() {
+            ctx.fillStyle = themeColors.bg;
+            ctx.fillRect(0, 0, viewW, viewH);
+
+            for (var i = 0; i < shapes.length; i++) {
+                var s = shapes[i];
+                ctx.save();
+                ctx.translate(s.x, s.y);
+
+                ctx.fillStyle = themeColors.surface;
+                if (isLocked) {
+                    ctx.strokeStyle = themeColors.primary;
+                    ctx.lineWidth = 8;
+                }
+
+                ctx.beginPath();
+                if (s.type === 'circle') {
+                    ctx.arc(0, 0, s.radius, 0, Math.PI * 2);
+                } else {
+                    roundRectPath(-s.radius, -s.radius, s.radius * 2, s.radius * 2, s.radius * 0.4);
+                }
+                ctx.fill();
+                if (isLocked) ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        var lastTime = 0;
+
+        function loop(now) {
+            if (isPaused || isScreenOff) { animFrameId = null; return; }
+
+            var dt = (now - lastTime) / 1000;
+            if (!(dt > 0)) dt = 1 / 60;
+            if (dt > 0.05) dt = 0.05;
+            lastTime = now;
+
+            var motion = step(dt);
+            drawFrame();
+
+            if (motion < 0.05) {
+                idleFrames++;
+                if (idleFrames > 20) { animFrameId = null; return; }
+            } else {
+                idleFrames = 0;
+            }
+
+            animFrameId = requestAnimationFrame(loop);
+        }
+
+        function startLoop() {
+            if (isPaused || isScreenOff) return;
+            if (animFrameId !== null) return;
+            idleFrames = 0;
+            lastTime = performance.now();
+            animFrameId = requestAnimationFrame(loop);
+        }
+
+        function stopLoop() {
+            if (animFrameId !== null) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+        }
+
+        window.addEventListener('wallpaperGyroscope', function (e) {
+            if (!e.detail) return;
+            targetGx = (e.detail.roll || 0) * -0.2;
+            targetGy = (e.detail.pitch || 0) * 0.2;
+            startLoop();
+        });
+
+        function applyMetadata(data) {
+            if (!data) return;
+            if (data.accentColors) {
+                themeColors.bg = data.accentColors.background || themeColors.bg;
+                themeColors.surface = data.accentColors.surfaceContainer || themeColors.surface;
+                themeColors.primary = data.accentColors.primary || themeColors.primary;
+            }
+            if (typeof data.isUnlocked === 'boolean') isLocked = !data.isUnlocked;
+            startLoop();
+        }
+
+        window.addEventListener('wallpaperEngineReady', function (e) {
+            applyMetadata(e.detail || (window.WallpaperEngine && window.WallpaperEngine.metadata));
+        });
+        window.addEventListener('wallpaperUpdate', function (e) { applyMetadata(e.detail); });
+        window.addEventListener('wallpaperUnlock', function (e) { applyMetadata(e.detail); });
+
+        window.addEventListener('wallpaperScreenOn', function () {
+            isScreenOff = false;
+            startLoop();
+        });
+        window.addEventListener('wallpaperScreenOff', function () {
+            isScreenOff = true;
+            stopLoop();
+        });
+        window.addEventListener('wallpaperPause', function () {
+            isPaused = true;
+            stopLoop();
+        });
+        window.addEventListener('wallpaperResume', function () {
+            isPaused = false;
+            startLoop();
+        });
+
+        resizeCanvas();
+        drawFrame();
+        startLoop();
+    })();
+    </script>
+</body>
+</html>

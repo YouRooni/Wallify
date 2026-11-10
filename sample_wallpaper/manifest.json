@@ -1,0 +1,9 @@
+{
+  "name": "Material 3 Shapes",
+  "description": "Динамические живые обои в стиле Material You / Monet. Автоматическая подстройка под системную цветовую схему Android 12+, эффект фокусировки экрана блокировки с плавным разрастанием 8px обводки и адаптацией под 120 Гц.",
+  "author": "Rooni",
+  "version": "1.3.0",
+  "minAppVersion": ">=1.0.0",
+  "main": "index.html",
+  "useGyroscope": false
+}

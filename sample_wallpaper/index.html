@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material 3 Shapes</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            overflow: hidden;
+            position: relative;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+    (function () {
+        'use strict';
+
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d', { alpha: false });
+
+        var MAX_DPR = 1.5;
+        var viewW = window.innerWidth || 360;
+        var viewH = window.innerHeight || 640;
+        var scale = 1;
+
+        function resizeCanvas() {
+            viewW = window.innerWidth || 360;
+            viewH = window.innerHeight || 640;
+            scale = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+
+            canvas.width = Math.floor(viewW * scale);
+            canvas.height = Math.floor(viewH * scale);
+            ctx.setTransform(scale, 0, 0, scale, 0, 0);
+        }
+        window.addEventListener('resize', function () {
+            resizeCanvas();
+            clampShapes();
+            requestDraw();
+        });
+
+        var isLocked = false;
+        var isPaused = false;
+        var isScreenOff = false;
+        var animFrameId = null;
+
+        var currentStrokeWidth = 0.0;
+        var targetStrokeWidth = 0.0;
+
+        var themeColors = {
+            bg: '#141218',
+            surface: '#211F26',
+            primary: '#6750A4',
+            secondary: '#625B71'
+        };
+
+        var speedMultiplier = 1.0;
+        var targetShapeCount = 6;
+
+        function readSettings() {
+            var engine = window.WallpaperEngine;
+            if (!engine || !engine.getSetting) return;
+            try {
+                var speed = engine.getSetting('speed', 'normal');
+                speedMultiplier = speed === 'slow' ? 0.5 : (speed === 'fast' ? 1.8 : 1.0);
+            } catch (e) {}
+            try {
+                var n = parseInt(engine.getSetting('shapeCount', '6'), 10);
+                if (!isNaN(n) && n >= 2 && n <= 20) targetShapeCount = n;
+            } catch (e) {}
+            syncShapeCount();
+        }
+
+        var TYPES = ['circle', 'squircle', 'pill', 'rounded_diamond'];
+        var shapes = [];
+        var hasNativeRoundRect = typeof ctx.roundRect === 'function';
+
+        function makeShape(id) {
+            var radius = 50 + (id % 3) * 10;
+            return {
+                id: id,
+                type: TYPES[id % TYPES.length],
+                radius: radius,
+                x: Math.random() * Math.max(1, viewW - radius * 2) + radius,
+                y: Math.random() * Math.max(1, viewH - radius * 2) + radius,
+                vx: (Math.random() - 0.5) * 1.2,
+                vy: (Math.random() - 0.5) * 1.2,
+                rotation: Math.random() * Math.PI * 2,
+                vRot: (Math.random() - 0.5) * 0.01
+            };
+        }
+
+        function syncShapeCount() {
+            while (shapes.length < targetShapeCount) shapes.push(makeShape(shapes.length));
+            while (shapes.length > targetShapeCount) shapes.pop();
+        }
+
+        function clampShapes() {
+            for (var i = 0; i < shapes.length; i++) {
+                var s = shapes[i];
+                if (s.x < s.radius) s.x = s.radius;
+                if (s.x > viewW - s.radius) s.x = Math.max(s.radius, viewW - s.radius);
+                if (s.y < s.radius) s.y = s.radius;
+                if (s.y > viewH - s.radius) s.y = Math.max(s.radius, viewH - s.radius);
+            }
+        }
+
+        function roundRectPath(x, y, w, h, r) {
+            if (hasNativeRoundRect) { ctx.roundRect(x, y, w, h, r); return; }
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        function step(dt) {
+            var mult = speedMultiplier * dt * 60;
+
+            for (var i = 0; i < shapes.length; i++) {
+                var s = shapes[i];
+                s.x += s.vx * mult;
+                s.y += s.vy * mult;
+                s.rotation += s.vRot * mult;
+
+                if (s.x - s.radius < 0) { s.x = s.radius; s.vx = Math.abs(s.vx); }
+                if (s.x + s.radius > viewW) { s.x = viewW - s.radius; s.vx = -Math.abs(s.vx); }
+                if (s.y - s.radius < 0) { s.y = s.radius; s.vy = Math.abs(s.vy); }
+                if (s.y + s.radius > viewH) { s.y = viewH - s.radius; s.vy = -Math.abs(s.vy); }
+            }
+
+            for (var a = 0; a < shapes.length; a++) {
+                var s1 = shapes[a];
+                for (var b = a + 1; b < shapes.length; b++) {
+                    var s2 = shapes[b];
+                    var dx = s2.x - s1.x;
+                    var dy = s2.y - s1.y;
+                    var d2 = dx * dx + dy * dy;
+                    var minDist = s1.radius + s2.radius + 30;
+                    if (d2 >= minDist * minDist || d2 === 0) continue;
+
+                    var dist = Math.sqrt(d2);
+                    var overlap = (minDist - dist) * 0.04;
+                    var nx = dx / dist;
+                    var ny = dy / dist;
+
+                    s1.x -= nx * overlap; s1.y -= ny * overlap;
+                    s2.x += nx * overlap; s2.y += ny * overlap;
+
+                    s1.vx -= nx * 0.015; s1.vy -= ny * 0.015;
+                    s2.vx += nx * 0.015; s2.vy += ny * 0.015;
+                }
+            }
+        }
+
+        function drawFrame() {
+            ctx.fillStyle = themeColors.bg;
+            ctx.fillRect(0, 0, viewW, viewH);
+
+            var showStroke = currentStrokeWidth > 0.1;
+
+            for (var i = 0; i < shapes.length; i++) {
+                var s = shapes[i];
+                ctx.save();
+                ctx.translate(s.x, s.y);
+                ctx.rotate(s.rotation);
+
+                ctx.fillStyle = themeColors.surface;
+                if (showStroke) {
+                    ctx.strokeStyle = themeColors.primary;
+                    ctx.lineWidth = currentStrokeWidth;
+                }
+
+                ctx.beginPath();
+                if (s.type === 'circle') {
+                    ctx.arc(0, 0, s.radius, 0, Math.PI * 2);
+                } else if (s.type === 'squircle') {
+                    roundRectPath(-s.radius, -s.radius, s.radius * 2, s.radius * 2, s.radius * 0.45);
+                } else if (s.type === 'pill') {
+                    var pw = s.radius * 1.5, ph = s.radius * 0.85;
+                    roundRectPath(-pw, -ph, pw * 2, ph * 2, ph);
+                } else {
+                    var r = s.radius * 0.9;
+                    roundRectPath(-r, -r, r * 2, r * 2, 28);
+                }
+
+                ctx.fill();
+                if (showStroke) ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        var lastTime = 0;
+
+        function loop(now) {
+            if (isPaused || isScreenOff) { animFrameId = null; return; }
+
+            var dt = (now - lastTime) / 1000;
+            if (!(dt > 0)) dt = 1 / 60;
+            if (dt > 0.05) dt = 0.05;
+            lastTime = now;
+
+            currentStrokeWidth += (targetStrokeWidth - currentStrokeWidth) * (1 - Math.exp(-6 * dt));
+
+            step(dt);
+            drawFrame();
+
+            animFrameId = requestAnimationFrame(loop);
+        }
+
+        function startLoop() {
+            if (isPaused || isScreenOff) return;
+            if (animFrameId !== null) return;
+            lastTime = performance.now();
+            animFrameId = requestAnimationFrame(loop);
+        }
+
+        function stopLoop() {
+            if (animFrameId !== null) {
+                cancelAnimationFrame(animFrameId);
+                animFrameId = null;
+            }
+        }
+
+        function requestDraw() {
+            if (animFrameId === null) drawFrame();
+        }
+
+        function updateMetadata(data) {
+            if (!data) return;
+
+            if (data.accentColors) {
+                themeColors.bg = data.accentColors.background || '#141218';
+                themeColors.surface = data.accentColors.surfaceContainer || '#211F26';
+                themeColors.primary = data.accentColors.primary || '#6750A4';
+                themeColors.secondary = data.accentColors.secondary || '#625B71';
+            }
+
+            isLocked = !data.isUnlocked || data.screen === 'lock';
+            targetStrokeWidth = isLocked ? 8.0 : 0.0;
+
+            readSettings();
+            startLoop();
+        }
+
+        window.addEventListener('wallpaperEngineReady', function (e) {
+            updateMetadata(e.detail || (window.WallpaperEngine && window.WallpaperEngine.metadata));
+        });
+        window.addEventListener('wallpaperUpdate', function (e) { updateMetadata(e.detail); });
+        window.addEventListener('wallpaperUnlock', function (e) { updateMetadata(e.detail); });
+        window.addEventListener('wallpaperThemeChange', function (e) { updateMetadata(e.detail); });
+
+        window.addEventListener('wallpaperScreenOn', function () {
+            isScreenOff = false;
+            for (var i = 0; i < shapes.length; i++) {
+                shapes[i].vx = (Math.random() - 0.5) * 3.5;
+                shapes[i].vy = (Math.random() - 0.5) * 3.5;
+            }
+            startLoop();
+        });
+
+        window.addEventListener('wallpaperScreenOff', function () {
+            isScreenOff = true;
+            stopLoop();
+        });
+
+        window.addEventListener('wallpaperPause', function () {
+            isPaused = true;
+            stopLoop();
+        });
+
+        window.addEventListener('wallpaperResume', function () {
+            isPaused = false;
+            startLoop();
+        });
+
+        resizeCanvas();
+        syncShapeCount();
+        drawFrame();
+        startLoop();
+    })();
+    </script>
+</body>
+</html>

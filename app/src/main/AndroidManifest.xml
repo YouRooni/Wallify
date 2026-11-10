@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-feature
+        android:name="android.software.live_wallpaper"
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <application
+        android:name=".WallifyApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        android:enableOnBackInvokedCallback="true"
+        android:theme="@style/Theme.HTMLWallpaper">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:configChanges="orientation|screenSize|screenLayout|density|uiMode">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.screens.WallpaperSettingsActivity"
+            android:exported="true"
+            android:label="@string/wallpaper_settings_title"
+            android:theme="@style/Theme.HTMLWallpaper"
+            android:configChanges="orientation|screenSize|screenLayout|density|uiMode" />
+
+        <activity
+            android:name=".ui.screens.WallpaperPreviewActivity"
+            android:exported="false"
+            android:label="@string/preview_title"
+            android:theme="@style/Theme.HTMLWallpaper"
+            android:configChanges="orientation|screenSize|screenLayout|density|uiMode" />
+
+        <activity
+            android:name=".ui.screens.ImportWallpaperActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:label="@string/import_filter_label"
+            android:theme="@style/Theme.HTMLWallpaper.Transparent">
+
+            <intent-filter android:label="@string/import_filter_label">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="application/zip" />
+                <data android:mimeType="application/x-zip-compressed" />
+                <data android:mimeType="multipart/x-zip" />
+            </intent-filter>
+
+            <intent-filter android:label="@string/import_filter_label">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:host="*" />
+                <data android:mimeType="*/*" />
+                <data android:pathPattern=".*\\.wallify" />
+                <data android:pathPattern=".*\\..*\\.wallify" />
+                <data android:pathPattern=".*\\..*\\..*\\.wallify" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.wallify" />
+                <data android:pathPattern=".*\\.WALLIFY" />
+                <data android:pathPattern=".*\\..*\\.WALLIFY" />
+                <data android:pathPattern=".*\\.zip" />
+                <data android:pathPattern=".*\\..*\\.zip" />
+                <data android:pathPattern=".*\\..*\\..*\\.zip" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.zip" />
+            </intent-filter>
+
+            <intent-filter android:label="@string/import_filter_label">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.wallify" />
+                <data android:pathPattern=".*\\..*\\.wallify" />
+                <data android:pathPattern=".*\\..*\\..*\\.wallify" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.wallify" />
+                <data android:pathPattern=".*\\.WALLIFY" />
+                <data android:pathPattern=".*\\..*\\.WALLIFY" />
+                <data android:pathPattern=".*\\.zip" />
+                <data android:pathPattern=".*\\..*\\.zip" />
+                <data android:pathPattern=".*\\..*\\..*\\.zip" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.zip" />
+            </intent-filter>
+
+            <intent-filter android:label="@string/import_filter_label">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="*" />
+                <data android:mimeType="*/*" />
+                <data android:pathPattern=".*\\.wallify" />
+                <data android:pathPattern=".*\\..*\\.wallify" />
+                <data android:pathPattern=".*\\..*\\..*\\.wallify" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.wallify" />
+                <data android:pathPattern=".*\\.WALLIFY" />
+                <data android:pathPattern=".*\\..*\\.WALLIFY" />
+            </intent-filter>
+
+            <intent-filter android:label="@string/import_filter_label">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.wallify" />
+                <data android:pathPattern=".*\\..*\\.wallify" />
+                <data android:pathPattern=".*\\..*\\..*\\.wallify" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.wallify" />
+                <data android:pathPattern=".*\\.WALLIFY" />
+                <data android:pathPattern=".*\\..*\\.WALLIFY" />
+            </intent-filter>
+
+            <intent-filter android:label="@string/import_filter_label">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/zip" />
+                <data android:mimeType="application/x-zip-compressed" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <service
+            android:name=".service.WallifyService"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_WALLPAPER">
+            <intent-filter>
+                <action android:name="android.service.wallpaper.WallpaperService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@xml/wallpaper" />
+        </service>
+
+    </application>
+
+</manifest>

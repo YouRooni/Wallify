@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройки Photo Blur Dynamics</title>
+    <style>
+        :root {
+            --accent-primary: #D0BCFF;
+            --accent-secondary: #CCC2DC;
+            --accent-tertiary: #EFB8C8;
+            --accent-container: rgba(208, 188, 255, 0.15);
+            --bg-color: #141218;
+            --card-bg: rgba(255, 255, 255, 0.07);
+            --text-color: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 16px;
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            box-sizing: border-box;
+            transition: background-color 0.3s ease;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            color: var(--accent-primary);
+            font-size: 20px;
+            margin-top: 4px;
+            margin-bottom: 16px;
+            font-weight: bold;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 16px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-primary);
+            color: #141218;
+            padding: 12px 24px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 999999;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .toast.hidden { opacity: 0; }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-desc {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-bottom: 12px;
+        }
+
+        .preview-box {
+            width: 100%;
+            height: 140px;
+            border-radius: 14px;
+            background-size: cover;
+            background-position: center;
+            border: 2px dashed rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .preview-box span {
+            font-size: 13px;
+            opacity: 0.6;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 14px;
+            background: var(--accent-primary);
+            color: #141218;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s, background-color 0.3s ease;
+        }
+
+        button.btn-secondary {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            flex: 0 0 auto;
+            width: 44px;
+        }
+
+        button:active {
+            opacity: 0.8;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent-primary);
+            margin-top: 8px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Photo Blur Dynamics</h2>
+
+        <div class="card">
+            <div class="card-title">
+                <span>Рабочий стол</span>
+            </div>
+            <div class="card-desc">Выберите фоновое изображение для главного экрана</div>
+
+            <div id="homePreview" class="preview-box">
+                <span>Изображение не выбрано (Стандарт)</span>
+            </div>
+
+            <input type="file" id="homeFileInput" accept="image/*">
+
+            <div class="btn-row">
+                <button id="pickHomeBtn">Выбрать фото</button>
+                <button id="clearHomeBtn" class="btn-secondary" title="Очистить">✕</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <span>Экран блокировки</span>
+            </div>
+            <div class="card-desc">Выберите фоновое изображение для заблокированного экрана</div>
+
+            <div id="lockPreview" class="preview-box">
+                <span>Изображение не выбрано (Стандарт)</span>
+            </div>
+
+            <input type="file" id="lockFileInput" accept="image/*">
+
+            <div class="btn-row">
+                <button id="pickLockBtn">Выбрать фото</button>
+                <button id="clearLockBtn" class="btn-secondary" title="Очистить">✕</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <span>Сила блюра блокировки</span>
+                <span id="blurValText">16px</span>
+            </div>
+            <input type="range" id="blurSlider" min="0" max="35" value="16">
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <span>Скорость перехода</span>
+                <span id="speedValText">0.6s</span>
+            </div>
+            <input type="range" id="speedSlider" min="0.2" max="1.5" step="0.1" value="0.6">
+        </div>
+
+        <button id="saveAllBtn" style="margin-top: 8px; padding: 14px; font-size: 15px;">Сохранить настройки</button>
+    </div>
+
+    <script>
+    (function () {
+        'use strict';
+
+        var homeImgPath = '';
+        var lockImgPath = '';
+        var pendingTarget = null;
+        var userTouched = false;
+
+        var el = function (id) { return document.getElementById(id); };
+
+        function formatImgUrl(urlStr) {
+            if (!urlStr) return '';
+            if (/^(https?:|blob:|data:)/.test(urlStr)) return urlStr;
+            return urlStr.replace(/^\/+/, '');
+        }
+
+        function applyMonetColors(metadata) {
+            if (!metadata || !metadata.accentColors) return;
+            var c = metadata.accentColors;
+            var r = document.documentElement.style;
+            if (c.primary) r.setProperty('--accent-primary', c.primary);
+            if (c.secondary) r.setProperty('--accent-secondary', c.secondary);
+            if (c.tertiary) r.setProperty('--accent-tertiary', c.tertiary);
+            if (c.background) r.setProperty('--bg-color', c.background);
+            if (c.surfaceContainer) r.setProperty('--card-bg', c.surfaceContainer);
+        }
+
+        function setPreview(box, url) {
+            if (url) {
+                box.style.backgroundImage = "url('" + url + "')";
+                box.textContent = '';
+            } else {
+                box.style.backgroundImage = '';
+                box.textContent = 'Изображение не выбрано (Стандарт)';
+            }
+        }
+
+        function updatePreviews() {
+            setPreview(el('homePreview'), formatImgUrl(homeImgPath));
+            setPreview(el('lockPreview'), formatImgUrl(lockImgPath));
+        }
+
+        function loadValues() {
+            var engine = window.WallpaperEngine;
+            if (!engine || !engine.getSetting) return;
+            if (userTouched) return;
+
+            applyMonetColors(engine.metadata || engine.getMetadata());
+
+            homeImgPath = engine.getSetting('homePhoto', '') || '';
+            lockImgPath = engine.getSetting('lockPhoto', '') || '';
+
+            var blurVal = engine.getSetting('blurAmount', '16') || '16';
+            var speedVal = engine.getSetting('animSpeed', '0.6') || '0.6';
+
+            el('blurSlider').value = blurVal;
+            el('blurValText').textContent = blurVal + 'px';
+            el('speedSlider').value = speedVal;
+            el('speedValText').textContent = speedVal + 's';
+
+            updatePreviews();
+        }
+
+        window.addEventListener('wallpaperUpdate', function (e) {
+            applyMonetColors(e.detail);
+            loadValues();
+        });
+        window.addEventListener('wallpaperEngineReady', function (e) {
+            applyMonetColors(e.detail);
+            loadValues();
+        });
+
+        window.addEventListener('wallpaperFileImported', function (e) {
+            var paths = e.detail && e.detail.paths;
+            if (!paths || !paths.length) return;
+            userTouched = true;
+            if (pendingTarget === 'lock') lockImgPath = paths[0];
+            else homeImgPath = paths[0];
+            pendingTarget = null;
+            updatePreviews();
+        });
+
+        el('pickHomeBtn').addEventListener('click', function () {
+            pendingTarget = 'home';
+            el('homeFileInput').click();
+        });
+        el('pickLockBtn').addEventListener('click', function () {
+            pendingTarget = 'lock';
+            el('lockFileInput').click();
+        });
+
+        el('clearHomeBtn').addEventListener('click', function () {
+            userTouched = true;
+            homeImgPath = '';
+            updatePreviews();
+        });
+        el('clearLockBtn').addEventListener('click', function () {
+            userTouched = true;
+            lockImgPath = '';
+            updatePreviews();
+        });
+
+        el('blurSlider').addEventListener('input', function (e) {
+            userTouched = true;
+            el('blurValText').textContent = e.target.value + 'px';
+        });
+        el('speedSlider').addEventListener('input', function (e) {
+            userTouched = true;
+            el('speedValText').textContent = e.target.value + 's';
+        });
+
+        el('saveAllBtn').addEventListener('click', function () {
+            var engine = window.WallpaperEngine;
+            if (!engine || !engine.saveSetting) return;
+            engine.saveSetting('homePhoto', homeImgPath);
+            engine.saveSetting('lockPhoto', lockImgPath);
+            engine.saveSetting('blurAmount', el('blurSlider').value);
+            engine.saveSetting('animSpeed', el('speedSlider').value);
+            userTouched = false;
+            showToast('Настройки фото-обоев сохранены!');
+        });
+
+        var toastEl = null, toastTimer = null, toastRemoveTimer = null;
+
+        function showToast(msg) {
+            if (toastTimer) clearTimeout(toastTimer);
+            if (toastRemoveTimer) clearTimeout(toastRemoveTimer);
+            if (!toastEl) {
+                toastEl = document.createElement('div');
+                toastEl.className = 'toast';
+                document.body.appendChild(toastEl);
+            }
+            toastEl.textContent = msg;
+            toastEl.classList.remove('hidden');
+            toastTimer = setTimeout(function () {
+                toastEl.classList.add('hidden');
+                toastRemoveTimer = setTimeout(function () {
+                    if (toastEl && toastEl.parentNode) toastEl.parentNode.removeChild(toastEl);
+                    toastEl = null;
+                }, 300);
+            }, 2000);
+        }
+
+        loadValues();
+    })();
+    </script>
+</body>
+</html>

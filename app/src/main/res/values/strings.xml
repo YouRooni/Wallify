@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Wallify</string>
+    <string name="app_slogan">Живые обои на HTML</string>
+    <string name="wallpaper_description">Живые обои на HTML5</string>
+    <string name="shortcut_add">Добавить ярлык на рабочий стол</string>
+    <string name="shortcut_apply_label">Сменить на «%1$s»</string>
+    <string name="shortcut_applied">Выбраны обои: %1$s</string>
+    <string name="shortcut_not_supported">Лаунчер не поддерживает добавление ярлыков</string>
+
+    <string name="action_apply">Применить</string>
+    <string name="action_cancel">Отмена</string>
+    <string name="action_close">Закрыть</string>
+    <string name="action_ok">ОК</string>
+    <string name="action_yes">Да</string>
+    <string name="action_back">Назад</string>
+    <string name="action_delete">Удалить</string>
+    <string name="action_search">Поиск</string>
+    <string name="action_clear">Очистить</string>
+    <string name="action_share">Поделиться</string>
+    <string name="action_preview">Превью</string>
+    <string name="open_on_github">Открыть на GitHub</string>
+    <string name="dialog_confirm_title">Подтвердите действие</string>
+
+    <string name="tab_home">Главная</string>
+    <string name="tab_wallpapers">Обои</string>
+    <string name="tab_repository">Каталог</string>
+    <string name="tab_settings">Настройки</string>
+
+    <string name="status_title">СОСТОЯНИЕ</string>
+    <string name="status_installed">Обои активны</string>
+    <string name="status_installed_desc">Wallify работает как живые обои</string>
+    <string name="status_not_installed">Обои не установлены</string>
+    <string name="status_not_installed_desc">Выберите Wallify в настройках обоев системы</string>
+    <string name="status_paused">Пауза</string>
+    <string name="status_paused_desc">Анимация остановлена вручную</string>
+    <string name="status_active_pack">Активный комплект: %1$s</string>
+    <string name="status_no_pack">Комплект не выбран</string>
+
+    <string name="btn_set_wallpaper">Установить</string>
+    <string name="btn_restart_wallpaper">Перезапустить</string>
+    <string name="btn_pause_resume">Пауза</string>
+
+    <string name="info_title">О ПРИЛОЖЕНИИ</string>
+    <string name="app_version_title">Версия</string>
+    <string name="docs_title">Документация</string>
+    <string name="docs_summary">API обоев: манифест, JS-мост, события</string>
+
+    <string name="author_title">АВТОР</string>
+    <string name="author_name_title">Rooni</string>
+    <string name="author_name_summary">rooni.dev</string>
+    <string name="tg_channel_title">Telegram</string>
+    <string name="tg_channel_summary">\@RnPlugins</string>
+
+    <string name="wallpapers_count">КОМПЛЕКТЫ (%1$d)</string>
+    <string name="no_folder_selected_title">Папка не выбрана</string>
+    <string name="no_folder_selected_desc">Укажите папку, внутри которой лежат комплекты обоев</string>
+    <string name="btn_select_folder">Выбрать папку</string>
+    <string name="no_wallpapers_found">Здесь пока пусто. Импортируйте архив или скачайте что-нибудь из каталога.</string>
+    <string name="no_wallpapers_match">Ничего не найдено</string>
+    <string name="search_wallpapers_hint">Название или автор</string>
+
+    <string name="sort_title">Сортировка</string>
+    <string name="sort_recent">Недавно использованные</string>
+    <string name="sort_newest">Сначала новые</string>
+    <string name="sort_oldest">Сначала старые</string>
+    <string name="sort_name_asc">По алфавиту (А-Я)</string>
+    <string name="sort_name_desc">Против алфавита (Я-А)</string>
+
+    <string name="btn_active">Активные</string>
+    <string name="btn_settings">Настройки</string>
+    <string name="btn_export">Поделиться архивом</string>
+    <string name="btn_import_zip">Импорт архива</string>
+    <string name="wallpaper_by">%1$s · v%2$s</string>
+    <string name="wallpaper_folder">Папка: %1$s</string>
+    <string name="wallpaper_no_description">Без описания</string>
+    <string name="incompatible_reason">Нужна версия приложения %1$s, у вас %2$s</string>
+    <string name="delete_wallpaper_title">Удалить обои?</string>
+    <string name="delete_wallpaper_text">«%1$s» будет удалён из папки без возможности восстановления.</string>
+
+    <string name="toast_wallpaper_applied">Обои применены</string>
+    <string name="toast_wallpaper_installed">Установлено: %1$s</string>
+    <string name="toast_wallpapers_installed">Установлено обоев: %1$d</string>
+    <string name="toast_wallpaper_deleted">Обои удалены</string>
+    <string name="toast_wallpaper_delete_failed">Не удалось удалить</string>
+    <string name="toast_wallpaper_restarted">Обои перезапущены</string>
+    <string name="toast_export_failed">Не удалось собрать архив</string>
+    <string name="toast_export_done">Архив создан</string>
+    <string name="toast_updated_to">Обновлено до v%1$s</string>
+
+    <string name="loading_applying">Применяем…</string>
+    <string name="loading_importing">Распаковываем…</string>
+    <string name="loading_opening_settings">Открываем настройки…</string>
+    <string name="loading_preparing_share">Готовим архив для отправки…</string>
+
+    <string name="settings_general">ОБЩИЕ</string>
+    <string name="battery_optimization_title">Разрешить работу без ограничений</string>
+    <string name="battery_optimization_summary">Откройте системный диалог, если прошивка останавливает живые обои после выгрузки Wallify</string>
+    <string name="battery_optimization_done">Работа без ограничений разрешена</string>
+    <string name="battery_optimization_done_summary">Система не должна останавливать Wallify для экономии батареи</string>
+    <string name="touch_title">Касания</string>
+    <string name="touch_summary">Передавать нажатия с рабочего стола в обои</string>
+    <string name="auto_pause_title">Пауза в энергосбережении</string>
+    <string name="auto_pause_summary">Полностью останавливать обои, пока включено энергосбережение</string>
+    <string name="change_folder_title">Папка с обоями</string>
+    <string name="change_folder_empty">Не выбрана</string>
+
+    <string name="settings_experimental">ЭКСПЕРИМЕНТЫ</string>
+    <string name="bypass_iframe_title">Обход защиты iframe</string>
+    <string name="bypass_iframe_summary">Снимать X-Frame-Options и CSP со страниц, встроенных в iframe. На fetch и XHR не влияет.</string>
+    <string name="simple_render_title">Программная отрисовка</string>
+    <string name="simple_render_summary">Рисует обои процессором. Медленнее, зато помогает при проблемах с обычным режимом.</string>
+
+    <string name="settings_perf">ПРОИЗВОДИТЕЛЬНОСТЬ</string>
+    <string name="fps_title">Частота кадров: %1$d</string>
+    <string name="fps_max_summary">Максимум для вашего экрана — %1$d Гц</string>
+    <string name="res_title">Качество рендеринга: %1$d%%</string>
+    <string name="res_summary" formatted="false">Кадр рисуется в уменьшенном разрешении и растягивается на экран. 100% — максимальная чёткость, ниже — меньше нагрузка.</string>
+
+    <string name="settings_dev">РАЗРАБОТЧИКАМ</string>
+    <string name="debug_title">Метаданные JS Bridge</string>
+    <string name="debug_summary">Что именно движок передаёт в обои</string>
+    <string name="debug_section_metadata">МЕТАДАННЫЕ</string>
+    <string name="debug_section_colors">ЦВЕТА MATERIAL YOU</string>
+    <string name="debug_section_json">JSON ДЛЯ WINDOW.WALLPAPERENGINE</string>
+    <string name="debug_theme">Тема</string>
+    <string name="debug_screen_state">Экран</string>
+    <string name="debug_unlocked">Разблокирован</string>
+    <string name="debug_locked">Заблокирован</string>
+    <string name="debug_device">Устройство</string>
+
+    <string name="wallpaper_settings_title">Настройки обоев</string>
+    <string name="preview_title">Превью</string>
+    <string name="preview_server_error">Локальный сервер не запустился</string>
+    <string name="preview_lock">Показать как на экране блокировки</string>
+    <string name="preview_unlock">Показать как на рабочем столе</string>
+
+    <string name="repo_count">КАТАЛОГ (%1$d)</string>
+    <string name="repo_notice_title">Каталог сообщества</string>
+    <string name="repo_notice_desc">Обои сюда выкладывают пользователи. Они могут обращаться к интернету — ставьте только то, чему доверяете.</string>
+    <string name="repo_notice_dismiss">Больше не показывать</string>
+    <string name="repo_empty">Ничего не найдено</string>
+    <string name="repo_folder_required_desc">Сначала выберите папку, куда Wallify будет устанавливать обои из каталога.</string>
+    <string name="repo_search_hint">Название, автор или #тег</string>
+    <string name="repo_sort_title">Сортировка и фильтры</string>
+    <string name="repo_sort_alpha">По алфавиту</string>
+    <string name="repo_sort_downloads">По загрузкам</string>
+    <string name="repo_sort_new">Сначала новые</string>
+    <string name="repo_type_title">Тип</string>
+    <string name="repo_type_lite">Lite — экономные</string>
+    <string name="repo_type_full">Full — с анимацией</string>
+    <string name="repo_type_unsupported">Показывать несовместимые</string>
+    <string name="repo_support_title">ПОДДЕРЖКА</string>
+    <string name="repo_filter_landscape">Горизонтальные экраны</string>
+    <string name="repo_filter_themes">Светлая и тёмная темы</string>
+    <string name="repo_filter_monet">Цвета Material You</string>
+    <string name="repo_requires_version">Нужна Wallify %1$s</string>
+    <string name="repo_badge_update">Обновление</string>
+    <string name="repo_badge_installed">Установлено</string>
+    <string name="repo_badge_landscape">✓ ПЛАНШЕТ</string>
+    <string name="repo_btn_install">Установить</string>
+    <string name="repo_btn_update">Обновить до v%1$s</string>
+    <string name="repo_installed_version">Установлено v%1$s · в каталоге v%2$s</string>
+    <string name="repo_version">Версия %1$s</string>
+    <string name="repo_readme_title">ОПИСАНИЕ</string>
+    <string name="repo_readme_empty">README отсутствует</string>
+    <string name="repo_chip_lite">Lite</string>
+    <string name="repo_chip_full">Full</string>
+    <string name="repo_chip_gyro">Гироскоп</string>
+    <string name="repo_chip_downloads">%1$d загрузок</string>
+    <string name="repo_delete_confirm">Удалить «%1$s» с устройства?</string>
+    <string name="repo_btn_applied">Уже применены</string>
+
+    <string name="import_filter_label">Установить обои Wallify</string>
+    <string name="import_reading">Читаем архив…</string>
+    <string name="import_installing">Устанавливаем «%1$s»…</string>
+    <string name="import_no_file">Файл не передан</string>
+    <string name="import_failed_title">Не получилось</string>
+    <string name="import_bad_archive">Архив не читается или пуст</string>
+    <string name="import_no_index">В архиве нет index.html — это не комплект обоев</string>
+    <string name="import_failed">Не удалось распаковать архив</string>
+    <string name="import_need_folder_title">Сначала выберите папку</string>
+    <string name="import_need_folder_desc">Wallify хранит обои в одной папке на устройстве. Укажите её один раз.</string>
+    <string name="import_author">Автор: %1$s</string>
+    <string name="import_version">Версия: %1$s</string>
+    <string name="import_files">Файлов в архиве: %1$d</string>
+    <string name="import_install_and_apply">Установить и применить</string>
+    <string name="import_install_only">Только установить</string>
+    <string name="import_update_and_apply">Обновить и применить</string>
+    <string name="import_update_only">Только обновить</string>
+</resources>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Material 3 Shapes (Lite)</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script>
+    (function () {
+        'use strict';
+
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d', { alpha: false });
+
+        var MAX_DPR = 1.5;
+
+        var width = window.innerWidth || 1080;
+        var height = window.innerHeight || 2400;
+        var dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+
+        var shapeColor = '#2B2930';
+        var bgColor = '#141218';
+        var isUnlocked = true;
+        var isPaused = false;
+        var currentBorderAlpha = 0.0;
+
+        var animProgress = 1.0;
+        var animStartTime = 0;
+        var needResetTime = true;
+        var lastFrameTimestamp = 0;
+        var currentDurationMs = 2500;
+
+        var durationUnlock = 2500;
+        var durationScreenOn = 1200;
+        var durationScreenOff = 400;
+
+        var animFrameId = null;
+        var shapes = [];
+
+        var LAYOUT = [
+            { rx: 0.26, ry: 0.18, k: 1.10, angle: 0.2, speed:  2.2, type: 'rect'   },
+            { rx: 0.74, ry: 0.24, k: 1.20, angle: 0.8, speed: -1.8, type: 'circle' },
+            { rx: 0.32, ry: 0.46, k: 1.00, angle: 1.4, speed:  2.0, type: 'pill'   },
+            { rx: 0.78, ry: 0.54, k: 1.15, angle: 0.5, speed: -2.3, type: 'rect'   },
+            { rx: 0.24, ry: 0.78, k: 1.10, angle: 2.1, speed:  1.6, type: 'circle' },
+            { rx: 0.70, ry: 0.84, k: 1.25, angle: 1.1, speed: -1.9, type: 'pill'   }
+        ];
+
+        function layoutShapes() {
+            var baseSize = Math.min(width, height) * 0.22;
+            if (shapes.length !== LAYOUT.length) {
+                shapes = LAYOUT.map(function (l) {
+                    return { x: 0, y: 0, size: 0, angle: l.angle, speed: l.speed, type: l.type };
+                });
+            }
+            for (var i = 0; i < LAYOUT.length; i++) {
+                shapes[i].x = width * LAYOUT[i].rx;
+                shapes[i].y = height * LAYOUT[i].ry;
+                shapes[i].size = baseSize * LAYOUT[i].k;
+            }
+        }
+
+        function resize() {
+            dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+            width = window.innerWidth || 1080;
+            height = window.innerHeight || 2400;
+
+            canvas.width = Math.round(width * dpr);
+            canvas.height = Math.round(height * dpr);
+
+            layoutShapes();
+            drawFrame();
+        }
+        window.addEventListener('resize', resize);
+
+        var hasNativeRoundRect = typeof ctx.roundRect === 'function';
+        function roundRectPath(x, y, w, h, radius) {
+            if (hasNativeRoundRect) {
+                ctx.beginPath();
+                ctx.roundRect(x, y, w, h, radius);
+                return;
+            }
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + w - radius, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+            ctx.lineTo(x + w, y + h - radius);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+            ctx.lineTo(x + radius, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        function triggerAnimation(durationMs) {
+            if (isPaused) return;
+            currentDurationMs = durationMs || 2500;
+            needResetTime = true;
+            if (animFrameId === null) {
+                lastFrameTimestamp = performance.now();
+                animFrameId = requestAnimationFrame(loop);
+            }
+        }
+
+        function stopAnimation() {
+            if (animFrameId !== null) {
+                cancelAnimationFrame(animFrameId);
+                animFrameId = null;
+            }
+        }
+
+        function loop() {
+            if (isPaused) { animFrameId = null; return; }
+
+            var now = performance.now();
+            if (needResetTime) {
+                animStartTime = now;
+                lastFrameTimestamp = now;
+                needResetTime = false;
+            }
+
+            var elapsed = now - animStartTime;
+            if (elapsed < 0) elapsed = 0;
+
+            var dtSeconds = (now - lastFrameTimestamp) / 1000;
+            if (dtSeconds > 0.033) dtSeconds = 0.033;
+            if (dtSeconds < 0) dtSeconds = 0;
+            lastFrameTimestamp = now;
+
+            var targetBorderAlpha = isUnlocked ? 0.0 : 0.95;
+            var k = 1 - Math.exp(-9 * dtSeconds);
+            currentBorderAlpha += (targetBorderAlpha - currentBorderAlpha) * k;
+
+            if (elapsed >= currentDurationMs && Math.abs(currentBorderAlpha - targetBorderAlpha) < 0.005) {
+                animProgress = 0.0;
+                currentBorderAlpha = targetBorderAlpha;
+                drawFrame();
+                animFrameId = null;
+                return;
+            }
+
+            var t = elapsed / currentDurationMs;
+            if (t > 1) t = 1;
+            animProgress = Math.pow(1 - t, 2.5);
+
+            for (var i = 0; i < shapes.length; i++) {
+                shapes[i].angle += (shapes[i].speed * 1.1) * dtSeconds * animProgress;
+            }
+
+            drawFrame();
+            animFrameId = requestAnimationFrame(loop);
+        }
+
+        function drawFrame() {
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, width, height);
+
+            var showBorder = currentBorderAlpha > 0.01;
+            var strokeStyle = showBorder
+                ? 'rgba(255, 255, 255, ' + currentBorderAlpha.toFixed(2) + ')'
+                : null;
+
+            for (var i = 0; i < shapes.length; i++) {
+                var s = shapes[i];
+                ctx.save();
+                ctx.translate(s.x, s.y);
+                ctx.rotate(s.angle);
+
+                ctx.fillStyle = shapeColor;
+
+                if (showBorder) {
+                    ctx.strokeStyle = strokeStyle;
+                    ctx.lineWidth = 6;
+                }
+
+                if (s.type === 'circle') {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, s.size / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    if (showBorder) ctx.stroke();
+                } else if (s.type === 'rect') {
+                    roundRectPath(-s.size / 2, -s.size / 2, s.size, s.size, 28);
+                    ctx.fill();
+                    if (showBorder) ctx.stroke();
+                } else {
+                    var w = s.size * 1.25, h = s.size * 0.75;
+                    roundRectPath(-w / 2, -h / 2, w, h, 36);
+                    ctx.fill();
+                    if (showBorder) ctx.stroke();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        function updateState(metadata) {
+            if (!metadata) return;
+
+            if (metadata.accentColors) {
+                shapeColor = metadata.accentColors.surfaceContainer || metadata.accentColors.surface || '#2B2930';
+                bgColor = metadata.accentColors.background || '#141218';
+            }
+
+            if (metadata.animationDurationUnlock) durationUnlock = metadata.animationDurationUnlock * 1000;
+            if (metadata.animationDurationScreenOn) durationScreenOn = metadata.animationDurationScreenOn * 1000;
+            if (metadata.animationDurationScreenOff) durationScreenOff = metadata.animationDurationScreenOff * 1000;
+
+            if (typeof metadata.isUnlocked === 'boolean') isUnlocked = metadata.isUnlocked;
+
+            triggerAnimation(isUnlocked ? durationUnlock : durationScreenOff);
+        }
+
+        window.addEventListener('wallpaperEngineReady', function (e) {
+            updateState(e.detail || (window.WallpaperEngine && window.WallpaperEngine.metadata));
+        });
+        window.addEventListener('wallpaperUpdate', function (e) { updateState(e.detail); });
+
+        window.addEventListener('wallpaperUnlock', function () {
+            isUnlocked = true;
+            triggerAnimation(durationUnlock);
+        });
+
+        window.addEventListener('wallpaperScreenOn', function () {
+            triggerAnimation(durationScreenOn);
+        });
+
+        window.addEventListener('wallpaperScreenOff', function () {
+            isUnlocked = false;
+            currentBorderAlpha = 0.95;
+            animProgress = 0.0;
+            stopAnimation();
+            drawFrame();
+        });
+
+        window.addEventListener('wallpaperPause', function () {
+            isPaused = true;
+            stopAnimation();
+        });
+
+        window.addEventListener('wallpaperResume', function () {
+            isPaused = false;
+            triggerAnimation(durationScreenOn);
+        });
+
+        resize();
+        triggerAnimation(durationUnlock);
+    })();
+    </script>
+</body>
+</html>
